@@ -990,6 +990,8 @@ printf "## %s\n- Manufacturer: %s\n- Platform: %s\n- Codename: %s\n- Brand: %s\n
 printf "\n\n>Dumped by [Phoenix Firmware Dumper](https://github.com/DroidDumps/phoenix_firmware_dumper)\n" >> "${OUTDIR}"/README.md
 cat "${OUTDIR}"/README.md
 
+#Grep Kernel Version #Please Forgive Me For This Poor Script I've Written Which Might Not even work with some other Architecture because of how specific the command is.
+KERNEL_VERSION=$(sed -n '3p' "${OUTDIR}"/bootRE/ikconfig | cut -c 15- | rev | cut -c 22- | rev)
 
 # copy file names
 chown "$(whoami)" ./* -R
@@ -1096,6 +1098,7 @@ if [[ -s "${PROJECT_DIR}"/.github_token ]]; then
 			printf "\n<b>Device: %s</b>" "${codename}"
 			printf "\n<b>Version:</b> %s" "${release}"
 			printf "\n<b>Fingerprint:</b> %s" "${fingerprint}"
+			printf "\n<b>Kernel Version:</b> %s" "${KERNEL_VERSION}"
 			printf "\n<a href=\"https://github.com/%s/%s/tree/%s/\">Github Tree</a>" "${GIT_ORG}" "${repo}" "${branch}"
 			printf "\nJoin $CHAT_ID For More Dumps"
 			printf "\nJoin $CHAT_REQUEST_ID To Dump Your Firmware"
@@ -1106,6 +1109,7 @@ if [[ -s "${PROJECT_DIR}"/.github_token ]]; then
 			printf "\n<b>Version:</b> %s" "${release}"
 			printf "\n<b>Dump Type: Private: Contact Group Owner If You Need Access To Dump</b>"
 			printf "\n<b>Fingerprint:</b> %s" "${fingerprint}"
+			printf "\n<b>Kernel Version:</b> %s" "${KERNEL_VERSION}"
 			printf "\n<a href=\"https://github.com/%s/%s/tree/%s/\">Github Tree</a>" "${GIT_ORG}" "${repo}" "${branch}"
 			printf "\nDump Started By : <a href=\"tg://user?id=${USER_ID}\">${USER_FIRST_NAME}</a>"
 			printf "\nJoin $CHAT_ID For More Dumps"
