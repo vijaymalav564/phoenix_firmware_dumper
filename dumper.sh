@@ -90,6 +90,13 @@ for tool_slug in "${EXTERNAL_TOOLS[@]}"; do
 	fi
 done
 
+# Clone SebaUbuntu's TWRP Tree Generator.
+if [[ -d "$PROJECT_DIR/TWRP-device-tree-generator" ]]; then
+    git -C "$PROJECT_DIR"/TWRP-device-tree-generator pull --recurse-submodules
+else
+    git clone -q https://github.com/SebaUbuntu/TWRP-device-tree-generator "$PROJECT_DIR/TWRP-device-tree-generator"
+fi
+
 # Always Use update_metadata_pb2.py from Android's update_engine Git Repository
 curl -sL https://android.googlesource.com/platform/system/update_engine/+/refs/heads/master/scripts/update_payload/update_metadata_pb2.py?format=TEXT | base64 --decode > "${UTILSDIR}"/ota_payload_extractor/update_metadata_pb2.py
 
@@ -995,6 +1002,24 @@ cat "${OUTDIR}"/README.md
 
 #Grep Kernel Version #Please Forgive Me For This Poor Script I've Written Which Might Not even work with some other Architecture because of how specific the command is.
 KERNEL_VERSION=$(sed -n '3p' "${OUTDIR}"/bootRE/ikconfig | cut -c 15- | rev | cut -c 22- | rev)
+
+# create TWRP device tree if possible
+cd "$PROJECT_DIR"/TWRP-device-tree-generator
+pip3 install .
+if [[ "$is_ab" = true ]]; then
+    twrpimg=boot.img
+else
+    twrpimg=recovery.img
+fi
+if [[ -f  "${OUTDIR}"/"${twrpimg}" ]]; then
+    python3 -m twrpdtgen "${OUTDIR}"/"${twrpimg}"
+    if [[ "$?" = 0 ]]; then
+        mkdir -p "${OUTDIR}"/twrp-device-tree
+        mv "$PROJECT_DIR"/TWRP-device-tree-generator/working/* "${OUTDIR}"/twrp-device-tree
+        [[ ! -e "$OUTDIR"/twrp-device-tree/README.md ]] && curl https://raw.githubusercontent.com/wiki/SebaUbuntu/TWRP-device-tree-generator/4.-Build-TWRP-from-source.md > "$OUTDIR"/twrp-device-tree/README.md
+    fi
+fi
+cd "${OUTDIR}"/ || exit
 
 # copy file names
 chown "$(whoami)" ./* -R
